@@ -40,6 +40,8 @@ def load_entry_module():
 
 BASE_CONFIG = {
     "time": "03:00",
+    # No catch-up window: the tick test must not depend on when CI runs.
+    "catch_up_minutes": 0,
     "feed": "https://example.test/feed 获取科技新闻",
 }
 
