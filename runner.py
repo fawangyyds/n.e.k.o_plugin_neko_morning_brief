@@ -26,7 +26,7 @@ from .render import (
     digest_lines,
     template_spoken_line,
 )
-from .scheduler import next_run_at, due_slot
+from .scheduler import due_slot, next_run_at
 from .sources import build_sources
 from .sources.base import BaseSource
 from .sources.http import FetchError, HttpClient, resolve_proxy

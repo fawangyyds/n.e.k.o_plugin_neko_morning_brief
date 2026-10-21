@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 
 import _loader
-
 from nmb.paths import MISSING, resolve, resolve_str
 
 _loader.setup()

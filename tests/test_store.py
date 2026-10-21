@@ -4,7 +4,6 @@ import time
 import unittest
 
 import _loader
-
 from nmb.models import BriefItem
 from nmb.store import Store
 

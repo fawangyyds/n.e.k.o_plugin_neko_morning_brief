@@ -5,7 +5,6 @@ import unittest
 from datetime import datetime
 
 import _loader
-
 from nmb.models import BriefConfig, BriefItem, SourceReport
 from nmb.render import (
     build_prompt,

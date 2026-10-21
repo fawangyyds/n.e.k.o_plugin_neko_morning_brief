@@ -5,7 +5,6 @@ import time
 import unittest
 
 import _loader
-
 from nmb.models import BriefItem, SourceConfig, SourceReport
 from nmb.pipeline import collect, rank_items, select_spoken
 from nmb.sources.base import BaseSource
@@ -120,9 +119,6 @@ class CollectTests(unittest.TestCase):
 
     def test_one_bad_source_does_not_break_others(self):
         cfgs = [src("bad"), src("good")]
-        sources = {
-            "fake": FakeSource(FetchError("HTTP_500")),
-        }
         # Swap behaviour per cfg so "good" returns items.
         async def fetch(cfg):
             if cfg.id == "bad":

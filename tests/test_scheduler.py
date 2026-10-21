@@ -4,7 +4,6 @@ import unittest
 from datetime import datetime
 
 import _loader
-
 from nmb.scheduler import due_slot, next_run_at, normalize_times, parse_time
 
 _loader.setup()

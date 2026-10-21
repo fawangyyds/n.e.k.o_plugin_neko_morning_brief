@@ -4,7 +4,6 @@ import os
 import unittest
 
 import _loader
-
 from nmb.sources.http import detect_system_proxy, parse_proxy_server, resolve_proxy
 
 _loader.setup()

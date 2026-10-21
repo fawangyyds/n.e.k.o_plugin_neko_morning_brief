@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 
 import _loader
-
 from nmb.models import SourceConfig
 from nmb.sources.auto import (
     build_auto_items,

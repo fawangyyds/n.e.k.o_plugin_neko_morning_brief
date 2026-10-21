@@ -205,11 +205,12 @@ class FakeContext:
 def install() -> None:
     """Register the stub as ``plugin.sdk.plugin`` if the real SDK is absent."""
 
-    try:
-        import plugin.sdk.plugin  # noqa: F401
+    import importlib.util
 
-        return
-    except Exception:  # noqa: BLE001 - not installed, that is the point
+    try:
+        if importlib.util.find_spec("plugin.sdk.plugin") is not None:
+            return
+    except (ImportError, ValueError):
         pass
 
     module = types.ModuleType(__name__)

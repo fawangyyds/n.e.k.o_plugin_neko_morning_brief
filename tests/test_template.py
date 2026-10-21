@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 
 import _loader
-
 from nmb.template import TemplateError, render
 
 _loader.setup()

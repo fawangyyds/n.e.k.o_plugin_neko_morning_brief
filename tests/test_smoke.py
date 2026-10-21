@@ -18,7 +18,6 @@ import unittest
 from pathlib import Path
 
 import _loader
-
 import _sdk_stub
 
 _sdk_stub.install()

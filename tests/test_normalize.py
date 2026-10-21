@@ -4,7 +4,6 @@ import time
 import unittest
 
 import _loader
-
 from nmb.normalize import (
     clean_text,
     clean_url,
