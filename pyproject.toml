@@ -1,0 +1,6 @@
+[project]
+name = "neko-morning-brief"
+version = "0.1.0"
+description = "Source-agnostic morning digest plugin for N.E.K.O"
+requires-python = ">=3.11"
+dependencies = []
