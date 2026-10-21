@@ -228,14 +228,34 @@ def install() -> None:
         "timer_interval",
     ]
 
+    import importlib
+    import importlib.util
+    from pathlib import Path
+
     try:
-        # Inside the N.E.K.O source tree the real package is importable; never
-        # shadow it, or pytest's ``plugin.plugins...`` collection breaks.
-        import plugin  # noqa: F401
-    except ImportError:
+        has_real_plugin = importlib.util.find_spec("plugin") is not None
+    except (ImportError, ValueError):
+        has_real_plugin = False
+
+    if has_real_plugin:
+        # Inside the N.E.K.O source tree the real package exists; never shadow
+        # it, or pytest's ``plugin.plugins...`` collection breaks.
+        importlib.import_module("plugin")
+    else:
+        # Not importable from sys.path (pytest may run with the plugin dir as
+        # cwd). Build a namespace package that still points at the real tree so
+        # ``plugin.plugins`` keeps resolving.
+        real_root = Path(__file__).resolve().parents[3]
         plugin_pkg = types.ModuleType("plugin")
-        plugin_pkg.__path__ = []  # type: ignore[attr-defined]
+        plugin_pkg.__path__ = (  # type: ignore[attr-defined]
+            [str(real_root)] if (real_root / "plugins").is_dir() else []
+        )
         sys.modules["plugin"] = plugin_pkg
+        if plugin_pkg.__path__:
+            try:
+                importlib.import_module("plugin.plugins")
+            except Exception:  # noqa: BLE001 - best effort
+                pass
 
     sdk_pkg = sys.modules.get("plugin.sdk") or types.ModuleType("plugin.sdk")
     sdk_pkg.__path__ = getattr(sdk_pkg, "__path__", [])  # type: ignore[attr-defined]
