@@ -203,15 +203,12 @@ class FakeContext:
 
 
 def install() -> None:
-    """Register the stub as ``plugin.sdk.plugin`` if the real SDK is absent."""
+    """Register the stub as ``plugin.sdk.plugin``.
 
-    import importlib.util
-
-    try:
-        if importlib.util.find_spec("plugin.sdk.plugin") is not None:
-            return
-    except (ImportError, ValueError):
-        pass
+    Tests always run against this stub, even inside the N.E.K.O source tree:
+    the fake context cannot satisfy the real base class, and the stub keeps the
+    contract test deterministic across local and CI runs.
+    """
 
     module = types.ModuleType(__name__)
     for name, value in list(globals().items()):
