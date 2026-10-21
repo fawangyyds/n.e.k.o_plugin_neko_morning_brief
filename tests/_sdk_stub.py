@@ -228,10 +228,16 @@ def install() -> None:
         "timer_interval",
     ]
 
-    plugin_pkg = sys.modules.get("plugin") or types.ModuleType("plugin")
-    plugin_pkg.__path__ = []  # type: ignore[attr-defined]
+    try:
+        # Inside the N.E.K.O source tree the real package is importable; never
+        # shadow it, or pytest's ``plugin.plugins...`` collection breaks.
+        import plugin  # noqa: F401
+    except ImportError:
+        plugin_pkg = types.ModuleType("plugin")
+        plugin_pkg.__path__ = []  # type: ignore[attr-defined]
+        sys.modules["plugin"] = plugin_pkg
+
     sdk_pkg = sys.modules.get("plugin.sdk") or types.ModuleType("plugin.sdk")
-    sdk_pkg.__path__ = []  # type: ignore[attr-defined]
-    sys.modules.setdefault("plugin", plugin_pkg)
+    sdk_pkg.__path__ = getattr(sdk_pkg, "__path__", [])  # type: ignore[attr-defined]
     sys.modules.setdefault("plugin.sdk", sdk_pkg)
     sys.modules["plugin.sdk.plugin"] = module
