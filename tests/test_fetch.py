@@ -31,6 +31,24 @@ NEWS = {
     }
 }
 
+AMAP = {
+    "status": "1",
+    "count": "1",
+    "info": "OK",
+    "infocode": "10000",
+    "lives": [
+        {
+            "province": "湖北省",
+            "city": "孝感市",
+            "adcode": "420900",
+            "weather": "晴",
+            "temperature": "18",
+            "humidity": "72",
+            "reporttime": "2026-10-23 18:00:00",
+        }
+    ],
+}
+
 
 class WeatherTests(unittest.TestCase):
     def test_open_meteo_becomes_readable_weather(self):
@@ -61,6 +79,15 @@ class JsonTests(unittest.TestCase):
         self.assertEqual(result["kind"], "json")
         self.assertIn("512300", result["text"])
         self.assertIn("bitcoin", result["text"])
+
+    def test_amap_weather_keeps_lives_fields(self):
+        result = interpret_text(json.dumps(AMAP), url="https://restapi.amap.com/v3/weather/weatherInfo")
+        self.assertEqual(result["kind"], "json")
+        text = render_result(result)
+        self.assertIn("孝感市", text)
+        self.assertIn("晴", text)
+        self.assertIn("18", text)
+        self.assertIn("temperature", text)
 
     def test_broken_json_raises(self):
         with self.assertRaises(FetchError):

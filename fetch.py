@@ -99,16 +99,22 @@ def interpret_text(
             if items:
                 return _items_payload(url, "weather", items)
 
-        if _find_array(payload) is None:
-            # No feed-like list: let the model read the raw JSON itself instead
-            # of a flattened "key value" string it cannot interpret.
-            snippet = json.dumps(payload, ensure_ascii=False)
-            return {
-                "ok": True,
-                "url": url,
-                "kind": "json",
-                "text": snippet[:MAX_JSON_CHARS],
-            }
+        if _find_array(payload) is not None:
+            # Feed-like list: title/summary/url mapping works for these.
+            items = build_auto_items(text, cfg)
+            if items:
+                return _items_payload(url, "items", items)
+
+        # Everything else (AMap lives/status payloads, single values, exotic
+        # structures) goes to the model as raw JSON. Flattening it here is the
+        # fastest way to lose the only field the user actually asked for.
+        snippet = json.dumps(payload, ensure_ascii=False)
+        return {
+            "ok": True,
+            "url": url,
+            "kind": "json",
+            "text": snippet[:MAX_JSON_CHARS],
+        }
 
     return _items_payload(url, "items", build_auto_items(text, cfg))
 

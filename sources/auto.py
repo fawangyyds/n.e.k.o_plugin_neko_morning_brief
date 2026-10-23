@@ -162,8 +162,10 @@ def build_json_items(payload: Any, cfg: SourceConfig) -> list[BriefItem]:
             )
             if item is not None:
                 items.append(item)
-        if items:
-            return items
+        # Rows exist but none carries a title-like field: return nothing so the
+        # caller can hand the raw JSON to the model instead of a status-only
+        # summary (e.g. AMap's ``lives`` array).
+        return items
 
     item = make_item(
         source_id=cfg.id,
