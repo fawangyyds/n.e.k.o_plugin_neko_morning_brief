@@ -244,6 +244,10 @@ class NekoMorningBriefPlugin(NekoPluginBase):
             "properties": {
                 "url": {"type": "string", "description": "要抓取的 http(s) 网址"},
                 "cookie": {"type": "string", "description": "可选 Cookie 请求头"},
+                "label": {
+                    "type": "string",
+                    "description": "可选地点或名称，例如杭州；天气类数据会用它作标题",
+                },
                 "max_items": {
                     "type": "integer",
                     "minimum": 1,
@@ -256,7 +260,13 @@ class NekoMorningBriefPlugin(NekoPluginBase):
         timeout=30.0,
     )
     async def fetch_url(
-        self, *, url: str = "", cookie: str = "", max_items: int = 5, **_: Any
+        self,
+        *,
+        url: str = "",
+        cookie: str = "",
+        label: str = "",
+        max_items: int = 5,
+        **_: Any,
     ) -> dict:
         if not url:
             return {
@@ -265,7 +275,7 @@ class NekoMorningBriefPlugin(NekoPluginBase):
                 "error": "MISSING_URL",
             }
         try:
-            result = await self._fetch_url(url, cookie, max_items)
+            result = await self._fetch_url(url, cookie, max_items, label)
         except FetchError as exc:
             return {
                 "output": {"error": exc.code, "url": url},
@@ -280,7 +290,9 @@ class NekoMorningBriefPlugin(NekoPluginBase):
             }
         return result
 
-    async def _fetch_url(self, url: str, cookie: str, max_items: int) -> dict:
+    async def _fetch_url(
+        self, url: str, cookie: str, max_items: int, label: str = ""
+    ) -> dict:
         import aiohttp
 
         from .fetch import fetch_content, require_url
@@ -294,4 +306,5 @@ class NekoMorningBriefPlugin(NekoPluginBase):
                 target,
                 cookie=cookie,
                 max_items=max_items,
+                label=label,
             )

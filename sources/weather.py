@@ -101,7 +101,7 @@ def build_item(
         raise FetchError("PARSE_ERROR", "non-numeric forecast values") from exc
 
     description = WMO_TEXT.get(code, f"天气码 {code}")
-    title = f"{place} {low:.0f}~{high:.0f}℃ {description}"
+    title = f"{place} {low:.0f}~{high:.0f}℃ {description}".strip()
 
     parts: list[str] = []
     if pops and pops[0] is not None:
