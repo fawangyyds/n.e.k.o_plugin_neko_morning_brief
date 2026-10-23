@@ -236,8 +236,8 @@ class NekoMorningBriefPlugin(NekoPluginBase):
     @llm_tool(
         name="fetch_url",
         description=(
-            "按用户需求抓取一个网址，返回标题/条目/摘要。只负责取数据，不负责总结。"
-            "用户需求里写了 cookie 的，把 cookie 传进来。"
+            "按用户需求抓取一个网址，返回可直接引用的纯文本（标题/摘要/链接）。"
+            "只负责取数据，不负责总结。用户需求里写了 cookie 的，把 cookie 传进来。"
         ),
         parameters={
             "type": "object",
@@ -288,7 +288,9 @@ class NekoMorningBriefPlugin(NekoPluginBase):
                 "is_error": True,
                 "error": "FETCH_FAILED",
             }
-        return result
+        from .fetch import render_result
+
+        return render_result(result)
 
     async def _fetch_url(
         self, url: str, cookie: str, max_items: int, label: str = ""

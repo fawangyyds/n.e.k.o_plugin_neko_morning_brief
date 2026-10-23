@@ -4,7 +4,7 @@ import json
 import unittest
 
 import _loader
-from nmb.fetch import interpret_text
+from nmb.fetch import interpret_text, render_result
 from nmb.sources.http import FetchError
 
 _loader.setup()
@@ -72,6 +72,37 @@ class HtmlTests(unittest.TestCase):
         result = interpret_text("<html><head><title>Hello</title></head></html>")
         self.assertEqual(result["kind"], "items")
         self.assertEqual(result["items"][0]["title"], "Hello")
+
+
+class RenderTests(unittest.TestCase):
+    def test_weather_is_one_readable_line(self):
+        result = interpret_text(json.dumps(WEATHER), label="杭州")
+        text = render_result(result)
+        self.assertTrue(text.startswith("- 杭州"))
+        self.assertIn("℃", text)
+        self.assertIn("降水概率 80%", text)
+        self.assertNotIn("daily", text)
+        self.assertNotIn("{", text)
+
+    def test_items_are_bullets(self):
+        text = render_result(interpret_text(json.dumps(NEWS), url="https://x.test"))
+        self.assertIn("- A：ea", text)
+        self.assertIn("- B：eb", text)
+
+    def test_json_fallback_is_raw_text(self):
+        text = render_result(interpret_text(json.dumps({"price": 1})))
+        self.assertIn("price", text)
+        self.assertIn("1", text)
+
+    def test_empty_payload_has_message(self):
+        text = render_result({"kind": "items", "items": []})
+        self.assertEqual(text, "没有解析到内容")
+
+    def test_api_error_is_surfaced(self):
+        with self.assertRaises(FetchError) as ctx:
+            interpret_text(json.dumps({"error": True, "reason": "Latitude must be in range"}))
+        self.assertEqual(ctx.exception.code, "API_ERROR")
+        self.assertIn("Latitude", ctx.exception.detail)
 
 
 if __name__ == "__main__":

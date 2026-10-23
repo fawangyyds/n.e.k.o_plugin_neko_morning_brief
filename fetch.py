@@ -29,6 +29,37 @@ def _items_payload(url: str, kind: str, items: list[BriefItem]) -> dict:
     }
 
 
+def render_result(result: dict) -> str:
+    """Render one interpreted result as plain text for the model.
+
+    Tool results that are nested JSON are easy for weaker models to
+    misread ("ok: true" and nothing else). A flat text block always
+    survives the trip and is directly quotable.
+    """
+
+    kind = result.get("kind")
+    if kind in ("weather", "items"):
+        lines: list[str] = []
+        for item in result.get("items") or []:
+            title = str(item.get("title") or "").strip()
+            summary = str(item.get("summary") or "").strip()
+            url = item.get("url")
+            line = title
+            if summary:
+                line = f"{line}：{summary}" if line else summary
+            if url:
+                line = f"{line}（{url}）" if line else str(url)
+            if line:
+                lines.append(f"- {line}")
+        return "\n".join(lines) if lines else "没有解析到内容"
+
+    text = str(result.get("text") or "")
+    note = result.get("note")
+    if note:
+        text = f"[{note}] {text}"
+    return text or "没有解析到内容"
+
+
 def interpret_text(
     text: str,
     *,
@@ -54,6 +85,11 @@ def interpret_text(
             raise FetchError("PARSE_ERROR", "invalid JSON") from exc
 
         daily = payload.get("daily") if isinstance(payload, dict) else None
+
+        if isinstance(payload, dict) and payload.get("error"):
+            # APIs like Open-Meteo answer 200 with {"error": true, "reason": ...}.
+            raise FetchError("API_ERROR", str(payload.get("reason") or "remote api error"))
+
         if isinstance(daily, dict) and "weather_code" in daily:
             # Open-Meteo style forecast: turn codes into readable weather.
             try:
@@ -111,4 +147,4 @@ def require_url(url: str) -> str:
     return value
 
 
-__all__ = ["fetch_content", "interpret_text", "require_url"]
+__all__ = ["fetch_content", "interpret_text", "render_result", "require_url"]
